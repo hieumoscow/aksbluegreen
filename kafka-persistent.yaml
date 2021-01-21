@@ -1,0 +1,70 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: bg-kafka
+spec:
+  kafka:
+    version: 2.7.0
+    replicas: 3
+    rack:
+      topologyKey: kubernetes.io/hostname
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.message.format.version: "2.7"
+      inter.broker.protocol.version: "2.7"
+    storage:
+      type: jbod
+      volumes:
+        - id: 0
+          type: persistent-claim
+          size: 100Gi
+          deleteClaim: false
+          affinity:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: agentpool
+                  operator: In
+                  values:
+                    - userpool2
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 100Gi
+      deleteClaim: false
+    template:
+      pod:
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                "app.kubernetes.io/name": zookeeper
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: agentpool
+                      operator: In
+                      values:
+                        - userpool2
+  entityOperator:
+    topicOperator: { }
+    userOperator: { }
+
