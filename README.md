@@ -42,3 +42,14 @@ az aks nodepool add -g $RG -n greenpool \
 -k $GREEN_VERSION --cluster-name $CLUSTER --vnet-subnet-id $GREEN_SUBNET_ID
 
 ```
+
+
+
+## RabbitMQ 
+
+### Installing RabbitMQ Operator
+
+```bash
+kubectl apply -f "https://github.com/rabbitmq/cluster-operator/releases/latest/download/cluster-operator.yml"
+```
+
