@@ -32,6 +32,7 @@ BLUE_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name use
 az aks nodepool add -g $RG -n bluepool \
 -k $BLUE_VERSION --cluster-name $CLUSTER --vnet-subnet-id $BLUE_SUBNET_ID
 
+az aks get-credentials -g $RG -n $CLUSTER -admin
 
 az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION
 
