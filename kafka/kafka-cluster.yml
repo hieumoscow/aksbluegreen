@@ -1,7 +1,7 @@
 apiVersion: kafka.strimzi.io/v1beta1
 kind: Kafka
 metadata:
-  name: bg-kafka
+  name: bluegreen-kafka1
 spec:
   kafka:
     version: 2.7.0
@@ -11,7 +11,7 @@ spec:
     listeners:
       - name: plain
         port: 9092
-        type: internal
+        type: loadbalancer
         tls: false
       - name: tls
         port: 9093
