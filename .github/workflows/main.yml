@@ -42,4 +42,5 @@ jobs:
         run: |
           echo "DEFAULT_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
           echo ${{ env.DEFAULT_VERSION }}
+          echo $DEFAULT_VERSION
           
