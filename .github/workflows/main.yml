@@ -39,7 +39,7 @@ jobs:
           az account show
           
       - name: Generate SUFFIX
-        run: echo "SUFFIX=$(date +"%g%m%d%H%M%s")" >> $GITHUB_ENV
+        run: echo "SUFFIX=$(date +"%g%m%d%H%M")" >> $GITHUB_ENV
           
       # Az login
       - name: AKS Get versions
