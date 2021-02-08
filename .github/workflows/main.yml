@@ -25,12 +25,19 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        env: 
+          LOC: southeastasia
 
       # Az login
       - name: Login
         run: |
-          echo ${{ secrets.CLIENT_ID }}
           az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
           az account set -s ${{ secrets.SUB_ID }}
           az account show
-
+          
+      # Az login
+      - name: AKS Get versions
+        run: |
+          default_version=$(az aks get-versions --location ${{ env.LOC }} -o json | jq ".orchestrators[] | select(.default == true)")
+          echo "DEFAULT_VERSION=$default_version" >> $GITHUB_ENV
+          echo ${{ env.DEFAULT_VERSION }}
