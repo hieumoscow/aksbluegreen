@@ -69,8 +69,8 @@ jobs:
           echo $GREEN_SUBNET_ID
       - name: Destroy VNETS
         run: |
-          az network vnet delete -g $RG -n $VNET -l $LOC
-          az group delete -n $RG -l $LOC
+          az network vnet delete -g $RG -n $VNET
+          az group delete -n $RG -l $LOC -y
 
           
           
