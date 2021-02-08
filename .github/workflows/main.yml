@@ -13,6 +13,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env: 
+  LOC: southeastasia
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -37,8 +40,6 @@ jobs:
       # Az login
       - name: AKS Get versions
         run: |
-          default_version=$(az aks get-versions --location $LOC -o json | jq ".orchestrators[] | select(.default == true)")
+          default_version=$(az aks get-versions --location ${{ env.LOC }} -o json | jq ".orchestrators[] | select(.default == true)")
           echo "DEFAULT_VERSION=$default_version" >> $GITHUB_ENV
           echo ${{ env.DEFAULT_VERSION }}
-        env: 
-          LOC: southeastasia
