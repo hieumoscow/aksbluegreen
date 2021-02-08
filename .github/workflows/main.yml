@@ -87,7 +87,7 @@ jobs:
           -k $GREEN_VERSION --cluster-name $CLUSTER --vnet-subnet-id $GREEN_SUBNET_ID
       - name: Delete AKS
         run: |
-          az aks delete -g $RG -n $CLUSTER
+          az aks delete -g $RG -n $CLUSTER -y
       - name: Destroy VNETS
         run: |
           az network vnet delete -g $RG -n $VNET
