@@ -49,7 +49,15 @@ jobs:
           echo "RG=$PREFIX-rg-$SUFFIX" >> $GITHUB_ENV
           echo "CLUSTER=$PREFIX-aks-$SUFFIX" >> $GITHUB_ENV
           echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
-        
+      - name: Create VNETs
+        run: |
+          az group create -n $RG -l $LOC
+          az network vnet create -g $RG -n $VNET -l $LOC --address-prefixes 10.100.0.0/22
+          az network vnet subnet create -g $RG --vnet-name $VNET --name system --address-prefixes 10.100.0.0/24
+          az network vnet subnet create -g $RG --vnet-name $VNET --name user-blue --address-prefixes 10.100.1.0/24
+          az network vnet subnet create -g $RG --vnet-name $VNET --name user-green --address-prefixes 10.100.2.0/24
+          echo "SYSTEM_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name system --query id -o tsv)" >> $GITHUB_ENV
+          echo "GREEN_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name user-green --query id -o tsv)" >> $GITHUB_ENV
       - name: echo
         run: |
           echo $DEFAULT_VERSION
@@ -57,6 +65,12 @@ jobs:
           echo $RG
           echo $CLUSTER
           echo $VNET
-          echo $DEFAULT_VERSION
+          echo $SYSTEM_SUBNET_ID
+          echo $GREEN_SUBNET_ID
+      - name: Destroy VNETS
+        run: |
+          az network vnet delete -g $RG -n $VNET -l $LOC
+          az group delete -n $RG -l $LOC
+
           
           
