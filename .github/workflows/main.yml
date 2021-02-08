@@ -15,6 +15,7 @@ on:
 
 env: 
   LOC: southeastasia
+  PREFIX: aksbluegreen
   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -37,20 +38,25 @@ jobs:
           az account set -s ${{ secrets.SUB_ID }}
           az account show
           
+      - name: Generate SUFFIX
+        run: echo "SUFFIX=$(date +"%g%m.%d%H")" >> $GITHUB_ENV
+          
       # Az login
       - name: AKS Get versions
         run: |
           echo "DEFAULT_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
           echo "UPGRADE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion')" >> $GITHUB_ENV
-          echo "$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')"
-          echo ${{ env.DEFAULT_VERSION }}
-          echo $DEFAULT_VERSION
+          echo "RG=$PREFIX-rg-$SUFFIX" >> $GITHUB_ENV
+          echo "CLUSTER=$PREFIX-aks-$SUFFIX" >> $GITHUB_ENV
+          echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
         
       - name: echo
         run: |
-          echo ${{ env.DEFAULT_VERSION }}
           echo $DEFAULT_VERSION
-          echo ${{ env.UPGRADE_VERSION }}
           echo $UPGRADE_VERSION
+          echo $RG
+          echo $CLUSTER
+          echo $VNET
+          echo $DEFAULT_VERSION
           
           
