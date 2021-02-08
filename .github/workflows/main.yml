@@ -30,7 +30,7 @@ jobs:
       - name: Login
         run: |
           echo ${{ secrets.CLIENT_ID }}
-          az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tnant ${{ secrets.TENANT_ID }
+          az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tnant ${{ secrets.TENANT_ID }}
           az account set -s ${{ secrets.SUB_ID }}
           az account show
 
