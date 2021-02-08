@@ -44,8 +44,8 @@ jobs:
       # Az login
       - name: AKS Get versions
         run: |
-          echo "DEFAULT_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
-          echo "UPGRADE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion')" >> $GITHUB_ENV
+          echo "BLUE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
+          echo "GREEN_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion')" >> $GITHUB_ENV
           echo "RG=$PREFIX-rg-$SUFFIX" >> $GITHUB_ENV
           echo "CLUSTER=$PREFIX-aks-$SUFFIX" >> $GITHUB_ENV
           echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
@@ -57,16 +57,37 @@ jobs:
           az network vnet subnet create -g $RG --vnet-name $VNET --name user-blue --address-prefixes 10.100.1.0/24
           az network vnet subnet create -g $RG --vnet-name $VNET --name user-green --address-prefixes 10.100.2.0/24
           echo "SYSTEM_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name system --query id -o tsv)" >> $GITHUB_ENV
+          echo "BLUE_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name user-blue --query id -o tsv)" >> $GITHUB_ENV
           echo "GREEN_SUBNET_ID=$(az network vnet subnet show -g $RG --vnet-name $VNET --name user-green --query id -o tsv)" >> $GITHUB_ENV
       - name: echo
         run: |
-          echo $DEFAULT_VERSION
-          echo $UPGRADE_VERSION
+          echo $BLUE_VERSION
+          echo $GREEN_VERSION
           echo $RG
           echo $CLUSTER
           echo $VNET
           echo $SYSTEM_SUBNET_ID
           echo $GREEN_SUBNET_ID
+      - name: Create AKS With Blue Version
+        run: |
+          az aks create -g $RG -n $CLUSTER -l $LOC \
+          --max-pod 30 --generate-ssh-keys --network-plugin azure \
+          --enable-managed-identity -c 1 \
+          --vnet-subnet-id $SYSTEM_SUBNET_ID -k $BLUE_VERSION
+      - name: Add Blue nodepool
+        run: |
+          az aks nodepool add -g $RG -n bluepool \
+          -k $BLUE_VERSION --cluster-name $CLUSTER --vnet-subnet-id $BLUE_SUBNET_ID
+      - name: Upgrade AKS to Green Version
+        run: |
+          az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION
+      - name: Add Green nodepool
+        run: |
+          az aks nodepool add -g $RG -n greenpool \
+          -k $GREEN_VERSION --cluster-name $CLUSTER --vnet-subnet-id $GREEN_SUBNET_ID
+      - name: Delete AKS
+        run: |
+          az aks delete -g $RG -n $CLUSTER
       - name: Destroy VNETS
         run: |
           az network vnet delete -g $RG -n $VNET
