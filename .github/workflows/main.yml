@@ -40,6 +40,6 @@ jobs:
       # Az login
       - name: AKS Get versions
         run: |
-          default_version=$(az aks get-versions --location southeastasia -o json | jq -r ".orchestrators[] | select(.default == true) | .orchestratorVersion")
-          echo "DEFAULT_VERSION=$default_version" >> $GITHUB_ENV
+          export DEFAULT_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r ".orchestrators[] | select(.default == true) | .orchestratorVersion")
+          echo "::set-env name=DEFAULT_VERSION::$DEFAULT_VERSION"
           echo ${{ env.DEFAULT_VERSION }}
