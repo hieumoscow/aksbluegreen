@@ -29,6 +29,7 @@ jobs:
       # Az login
       - name: Login
         run: |
+          echo $CLIENT_ID
           az login --service-principal -u $CLIENT_ID -p $CLIENT_SECRET --tenant $TENANT_ID
           az account set -s $SUB_ID
           az account show
