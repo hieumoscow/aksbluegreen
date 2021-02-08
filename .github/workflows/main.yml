@@ -73,14 +73,14 @@ jobs:
           az aks create -g $RG -n $CLUSTER -l $LOC \
           --max-pod 30 --generate-ssh-keys --network-plugin azure \
           --enable-managed-identity -c 1 \
-          --vnet-subnet-id $SYSTEM_SUBNET_ID -k $BLUE_VERSION
+          --vnet-subnet-id $SYSTEM_SUBNET_ID -k $BLUE_VERSION -y
       - name: Add Blue nodepool
         run: |
           az aks nodepool add -g $RG -n bluepool \
           -k $BLUE_VERSION --cluster-name $CLUSTER --vnet-subnet-id $BLUE_SUBNET_ID
       - name: Upgrade AKS to Green Version
         run: |
-          az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION
+          az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION -y
       - name: Add Green nodepool
         run: |
           az aks nodepool add -g $RG -n greenpool \
