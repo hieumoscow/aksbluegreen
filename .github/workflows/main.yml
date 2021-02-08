@@ -70,7 +70,7 @@ jobs:
           echo $GREEN_SUBNET_ID
       - name: Create AKS With Blue Version
         run: |
-          az aks create -g $RG -n $CLUSTER -l $LOC \
+          az aks create -g $RG -n $CLUSTER -l $LOC --nodepool-name systempool \
           --max-pod 30 --generate-ssh-keys --network-plugin azure \
           --enable-managed-identity -c 1 \
           --vnet-subnet-id $SYSTEM_SUBNET_ID -k $BLUE_VERSION -y
@@ -81,6 +81,9 @@ jobs:
       - name: Upgrade AKS to Green Version
         run: |
           az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION -y
+      - name: Upgrade AKS system nodepool to Green Version
+        run: |
+          az aks nodepool upgrade -g $RG --cluster-name $CLUSTER -n systempool -k $GREEN_VERSION
       - name: Add Green nodepool
         run: |
           az aks nodepool add -g $RG -n greenpool \
