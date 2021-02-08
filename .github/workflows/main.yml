@@ -41,7 +41,7 @@ jobs:
       - name: AKS Get versions
         run: |
           echo "DEFAULT_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
-          echo "UPGRADE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion)'" >> $GITHUB_ENV
+          echo "UPGRADE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion')" >> $GITHUB_ENV
           echo "$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')"
           echo ${{ env.DEFAULT_VERSION }}
           echo $DEFAULT_VERSION
