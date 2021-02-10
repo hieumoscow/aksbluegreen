@@ -20,7 +20,7 @@ env:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  create:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     environment: terraformdev
@@ -37,6 +37,7 @@ jobs:
           az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
           az account set -s ${{ secrets.SUB_ID }}
           az account show
+          
           
       - name: Generate SUFFIX
         run: echo "SUFFIX=$(date +"%g%m%d%H%M")" >> $GITHUB_ENV
@@ -78,23 +79,66 @@ jobs:
         run: |
           az aks nodepool add -g $RG -n bluepool \
           -k $BLUE_VERSION --cluster-name $CLUSTER --vnet-subnet-id $BLUE_SUBNET_ID
-      - name: Upgrade AKS to Green Version
+      - name: Get Kubeconfig
         run: |
-          az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION -y
-      - name: Upgrade AKS system nodepool to Green Version
+          az aks get-credentials -g $RG -n $CLUSTER --admin
+          kubectl get po -A
+          kubectl apply -f $GITHUB_WORKSPACE/kafka/kafka-cluster.yml
+      - name: Deploy Kafka
         run: |
-          az aks nodepool upgrade -g $RG --cluster-name $CLUSTER -n systempool -k $GREEN_VERSION
-      - name: Add Green nodepool
+          kubectl apply -f $GITHUB_WORKSPACE/kafka/kafka-cluster.yml
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    environment: terraformdev
+    needs: [create]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v1
+      - name: wget
         run: |
-          az aks nodepool add -g $RG -n greenpool \
-          -k $GREEN_VERSION --cluster-name $CLUSTER --vnet-subnet-id $GREEN_SUBNET_ID
-      - name: Delete AKS
-        run: |
-          az aks delete -g $RG -n $CLUSTER -y
-      - name: Destroy VNETS
-        run: |
-          az network vnet delete -g $RG -n $VNET
-          az group delete -n $RG -y
+          az aks get-credentials -g $RG -n $CLUSTER --admin
+          kubectl get ingress -A
+
+#   upgrade:
+#     # The type of runner that the job will run on
+#     runs-on: ubuntu-latest
+#     environment: terraformdev
+#     needs: [deploy]
+
+#     # Steps represent a sequence of tasks that will be executed as part of the job
+#     steps:
+#       - name: Kubectl tool installer
+#         uses: Azure/setup-kubectl@v1
+#       - name: Create AKS With Blue Version
+        
+#         run: |
+#           az aks create -g $RG -n $CLUSTER -l $LOC --nodepool-name systempool \
+#           --max-pod 30 --generate-ssh-keys --network-plugin azure \
+#           --enable-managed-identity -c 1 \
+#           --vnet-subnet-id $SYSTEM_SUBNET_ID -k $BLUE_VERSION -y    
+         
+#       - name: Upgrade AKS to Green Version
+#         run: |
+#           az aks upgrade -g $RG -n $CLUSTER --control-plane-only -k $GREEN_VERSION -y
+#       - name: Upgrade AKS system nodepool to Green Version
+#         run: |
+#           az aks nodepool upgrade -g $RG --cluster-name $CLUSTER -n systempool -k $GREEN_VERSION
+#       - name: Add Green nodepool
+#         run: |
+#           az aks nodepool add -g $RG -n greenpool \
+#           -k $GREEN_VERSION --cluster-name $CLUSTER --vnet-subnet-id $GREEN_SUBNET_ID
+#       - name: Delete AKS
+#         run: |
+#           az aks delete -g $RG -n $CLUSTER -y
+#       - name: Destroy VNETS
+#         run: |
+#           az network vnet delete -g $RG -n $VNET
+#           az group delete -n $RG -y
 
           
           
