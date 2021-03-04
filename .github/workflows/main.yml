@@ -29,13 +29,11 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-      
-      - name: Azure CLI Action
-        uses: Azure/cli@1.0.4
-
+    
       # Az login
       - name: Login
         run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
           az login --service-principal -u ${{ secrets.CLIENT_ID }} -p ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }}
           az account set -s ${{ secrets.SUB_ID }}
           az account show
