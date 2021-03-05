@@ -31,15 +31,15 @@ spec:
           size: 100Gi
           deleteClaim: false
           affinity:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: agentpool
-                  operator: In
-                  values:
-                    - userpool2
+    # affinity:
+    #   nodeAffinity:
+    #     requiredDuringSchedulingIgnoredDuringExecution:
+    #       nodeSelectorTerms:
+    #         - matchExpressions:
+    #             - key: agentpool
+    #               operator: In
+    #               values:
+    #                 - userpool2
   zookeeper:
     replicas: 3
     storage:
@@ -55,15 +55,15 @@ spec:
             labelSelector:
               matchLabels:
                 "app.kubernetes.io/name": zookeeper
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: agentpool
-                      operator: In
-                      values:
-                        - userpool2
+        # affinity:
+        #   nodeAffinity:
+        #     requiredDuringSchedulingIgnoredDuringExecution:
+        #       nodeSelectorTerms:
+        #         - matchExpressions:
+        #             - key: agentpool
+        #               operator: In
+        #               values:
+        #                 - userpool2
   entityOperator:
     topicOperator: { }
     userOperator: { }
