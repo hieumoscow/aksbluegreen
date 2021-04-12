@@ -52,10 +52,9 @@ jobs:
           echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
       - name: Create VNETs
         run: |
-          rgExists=$(az group exists -n $RG)
-          if ($rgExists -eq 'false') {
-            az group create -n $RG -l $LOC
-          }
+          if [ $(az group exists --name $RG) = false ]; then
+            az group create --name $RG --location $LOC
+          fi
           az network vnet create -g $RG -n $VNET -l $LOC --address-prefixes 10.100.0.0/22
           az network vnet subnet create -g $RG --vnet-name $VNET --name system --address-prefixes 10.100.0.0/24
           az network vnet subnet create -g $RG --vnet-name $VNET --name user-blue --address-prefixes 10.100.1.0/24
