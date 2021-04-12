@@ -47,12 +47,15 @@ jobs:
         run: |
           echo "BLUE_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .orchestratorVersion')" >> $GITHUB_ENV
           echo "GREEN_VERSION=$(az aks get-versions --location southeastasia -o json | jq -r '.orchestrators[] | select(.default == true) | .upgrades[0].orchestratorVersion')" >> $GITHUB_ENV
-          echo "RG=$PREFIX-rg-$SUFFIX" >> $GITHUB_ENV
+          echo "RG=$PREFIX-rg" >> $GITHUB_ENV
           echo "CLUSTER=$PREFIX-aks-$SUFFIX" >> $GITHUB_ENV
           echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
       - name: Create VNETs
         run: |
-          az group create -n $RG -l $LOC
+          $rgExists = az group exists -n $RG
+          if ($rgExists -eq 'false') {
+            az group create -n $RG -l $LOC
+          }
           az network vnet create -g $RG -n $VNET -l $LOC --address-prefixes 10.100.0.0/22
           az network vnet subnet create -g $RG --vnet-name $VNET --name system --address-prefixes 10.100.0.0/24
           az network vnet subnet create -g $RG --vnet-name $VNET --name user-blue --address-prefixes 10.100.1.0/24
@@ -85,9 +88,10 @@ jobs:
         run: |
           az aks get-credentials -g $RG -n $CLUSTER --admin
           kubectl get po -A
-          kubectl apply -f $GITHUB_WORKSPACE/kafka/kafka-cluster.yml
       - name: Deploy Kafka
         run: |
+          kubectl apply -f $GITHUB_WORKSPACE/kafka/kafka-crds.yml
+          kubectl config set-context --current --namespace kafka
           kubectl apply -f $GITHUB_WORKSPACE/kafka/kafka-cluster.yml
   deploy:
     # The type of runner that the job will run on
