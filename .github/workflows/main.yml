@@ -52,7 +52,7 @@ jobs:
           echo "VNET=$PREFIX-vnet-$SUFFIX" >> $GITHUB_ENV
       - name: Create VNETs
         run: |
-          $rgExists = az group exists -n $RG
+          rgExists=$(az group exists -n $RG)
           if ($rgExists -eq 'false') {
             az group create -n $RG -l $LOC
           }
