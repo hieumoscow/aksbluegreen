@@ -79,6 +79,8 @@ jobs:
         run: |
           az aks nodepool add -g $RG -n bluepool \
           -k $BLUE_VERSION --cluster-name $CLUSTER --vnet-subnet-id $BLUE_SUBNET_ID
+      - name: Kubectl tool installer
+        uses: Azure/setup-kubectl@v1
       - name: Get Kubeconfig
         run: |
           az aks get-credentials -g $RG -n $CLUSTER --admin
