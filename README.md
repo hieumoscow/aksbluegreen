@@ -1,3 +1,16 @@
+# AKS Upgrade
+This article intents to enumarate different upgrade strategies that will help to maintain AKS and ensure the clusters are complaint with [AKS support policies](https://docs.microsoft.com/en-us/azure/aks/support-policies).
+
+## Upgrade Strategies
+
+
+|                           | In-place Upgrade | Blue/Green (New Node Pool) | Blue/Green (New Cluster) |
+|---------------------------------|---------------------------------|---------------------------------|---------------------------------|
+| **How**       | AKS Upgrade API | New Node Pool <br /> Nodes Labels and Selectors| Automation + GLB (Traffic Manager) |
+| **Upgrade Duration** | Depends on Cluster Size & surge value <br /> The larger the cluster the longer the upgrade | Shortest (Node Labels) Short with the right automation | Shortest (Node Labels) |
+| **Risk** | Subject to Failure | Safe - with the risk that the control plane upgrade will fail <br /> No impact on applications | Safest |
+| **When to recommend** | Small Production Cluster <br /> Non-Mission Critical <br /> Workloads <br /> Non-Prod Environments | Large Clusters <br /> Mission Critical Workloads | Large Clusters <br /> Mission Critical Workloads 
+
 # Blue Green Node Pool upgrade for AKS
 
 ```bash

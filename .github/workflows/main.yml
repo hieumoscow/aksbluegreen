@@ -144,6 +144,6 @@ jobs:
 #         run: |
 #           az network vnet delete -g $RG -n $VNET
 #           az group delete -n $RG -y
-
+# https://gist.github.com/drubin/c3e2131ada657b6bcb4f1ac64d789c87
           
           
